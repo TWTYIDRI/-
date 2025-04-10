@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>15分钟平衡法</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Microsoft+Yahei:wght@400;700&display=swap');
@@ -23,6 +23,7 @@
             justify-content: center;
             height: 100vh;
             text-align: center;
+            padding: 1rem;
         }
         
         .container {
@@ -30,11 +31,50 @@
             border: 1px solid #333;
             border-radius: 10px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            padding: 2.5rem;
+            padding: 1.5rem;
             width: 90%;
             max-width: 600px;
             position: relative;
             overflow: hidden;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+                width: 95%;
+            }
+            
+            h1 {
+                font-size: 1.5rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .task {
+                font-size: 1.8rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .timer {
+                font-size: 3.5rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .note {
+                font-size: 0.8rem !important;
+            }
+            
+            button {
+                padding: 0.5rem 1rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            .status {
+                font-size: 0.9rem !important;
+            }
+            
+            .cycle-count {
+                font-size: 0.8rem !important;
+            }
         }
         
         .container::before {
@@ -212,7 +252,8 @@
             
             <div class="note">
                 <h3>「一刻钟平衡术」</h3>
-                <p>认知科学研究表明，人类大脑在工作与休息的1:1黄金比例下达到最佳效率。根据发表在《神经科学与行为研究》期刊的数据，遵循相等的工作/休息时间能使创造力提升42%，同时减少精神疲劳与倦怠感。这种平衡法利用了大脑的"对比记忆效应"——通过强制休息来增强对工作的渴望，反之亦然，从而创造无痛的工作-休息正循环。</p>
+                <p>认知科学研究表明，人类大脑在工作与休息的1:1黄金比例下达到最佳效率。根据发表在《神经科学与行为研究》期刊的数据，遵循相等的工作/休息时间能使创造力提升42%，同时减少精神疲劳与倦怠感。这种平衡法利用了大脑的"对比记忆效应"，通过强制休息来增强对工作的渴望，反之亦然，从而创造无痛的工作-休息正循环。</p>
+                <p style="margin-top: 8px; font-style: italic; color: #999; font-size: 0.85em;">计数规则：1个完整周期 = 15分钟工作 + 15分钟休息</p>
             </div>
         </div>
     </div>
@@ -247,15 +288,6 @@
                 if (isRunning) return;
                 
                 mode = selectedMode;
-                
-                // Check if we completed a full cycle
-                if (lastMode && lastMode !== mode) {
-                    if ((lastMode === 'work' && mode === 'rest') || (lastMode === 'rest' && mode === 'work')) {
-                        cycleCount++;
-                        cycleCountElement.textContent = cycleCount;
-                    }
-                }
-                
                 lastMode = mode;
                 
                 isRunning = true;
@@ -279,10 +311,21 @@
                             timerElement.textContent = "时间到！";
                             isRunning = false;
                             
+                            // 播放提示音
+                            const timeUpSound = document.getElementById('timeUpSound');
+                            if (timeUpSound) {
+                                timeUpSound.play().catch(e => console.log('无法播放提示音'));
+                            }
+                            
+                            // 在休息模式结束时增加周期计数
+                            if (mode === 'rest') {
+                                cycleCount++;
+                                cycleCountElement.textContent = cycleCount;
+                            }
+                            
                             // Suggest the opposite mode next
-                            const nextMode = mode === 'work' ? 'rest' : 'work';
-                            const nextModeText = nextMode === 'work' ? "工作" : "休息";
-                            statusElement.textContent = `建议切换到${nextModeText}模式`;
+                            const nextMode = mode === 'work' ? "休息" : "工作";
+                            statusElement.textContent = `建议切换到${nextMode}模式`;
                             
                             resetTimer();
                             return;
