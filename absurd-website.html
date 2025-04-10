@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>现代人生存指南</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: #111111;
+            --text-color: #ffffff;
+            --accent-color: #ffffff;
+            --border-color: #333333;
+            --font-main: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Microsoft YaHei", "微软雅黑", sans-serif;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-main);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.7;
+            font-weight: 400;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+            aspect-ratio: 4/5;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        .card-inner {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+        }
+        
+        .card-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .quote {
+            font-size: 1.6rem;
+            line-height: 1.5;
+            text-align: center;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .quote::before,
+        .quote::after {
+            content: '"';
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.3;
+        }
+        
+        .quote::before {
+            top: -20px;
+            left: -10px;
+        }
+        
+        .quote::after {
+            bottom: -40px;
+            right: -10px;
+        }
+        
+        .card-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            margin-top: auto;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .brand {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .tag {
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+        
+        /* 纹理背景 */
+        .texture {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.05;
+            pointer-events: none;
+        }
+        
+        /* 控制按钮 */
+        .controls {
+            width: 100%;
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .btn {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        #generate-btn {
+            grid-column: span 2;
+            background-color: white;
+            color: black;
+            font-weight: 600;
+        }
+        
+        #generate-btn:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .btn-icon {
+            width: 16px;
+            height: 16px;
+        }
+        
+        /* 提示消息 */
+        .tooltip {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .tooltip.show {
+            opacity: 1;
+            animation: fadeInOut 2s ease forwards;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, 20px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+        
+        /* 加载动画 */
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .loading.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+            }
+            
+            .card-inner {
+                padding: 20px;
+            }
+            
+            .quote {
+                font-size: 1.3rem;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            #generate-btn {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">现代人生存指南</h1>
+            <p class="subtitle">荒诞世界的真实写照</p>
+        </div>
+        
+        <div class="card" id="quoteCard">
+            <div class="texture"></div>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+            </div>
+            <div class="card-inner">
+                <div class="card-content">
+                    <p class="quote" id="quote">人类的本质就是在星期一凌晨3点躺在床上辗转反侧，想着明天的工作，回忆10年前自己做过的蠢事。</p>
+                </div>
+                <div class="card-footer">
+                    <div class="brand">现代人生存指南</div>
+                    <div class="tag">#生活随想</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="generate-btn" class="btn">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 4v6h-6"></path>
+                    <path d="M1 20v-6h6"></path>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
+                    <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"></path>
+                </svg>
+                生成新句子
+            </button>
+            
+            <button id="copy-btn" class="btn">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                </svg>
+                复制文本
+            </button>
+            
+            <button id="save-btn" class="btn">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                保存图片
+            </button>
+        </div>
+    </div>
+    
+    <div class="tooltip" id="tooltip">已复制到剪贴板</div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const quoteElement = document.getElementById('quote');
+            const generateBtn = document.getElementById('generate-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            const saveBtn = document.getElementById('save-btn');
+            const tooltip = document.getElementById('tooltip');
+            const loading = document.getElementById('loading');
+            const quoteCard = document.getElementById('quoteCard');
+            
+            // 句子库
+            const quotes = [
+                "人类的本质就是在星期一凌晨3点躺在床上辗转反侧，想着明天的工作，回忆10年前自己做过的蠢事。",
+                "我不是迷茫，我是同时迷恋了八个方向。",
+                "假装热爱生活，直到生活假装热爱我。",
+                "今天的我杀死了昨天的我，明天的我又会杀死今天的我，这种连环杀人案，警方居然一点办法都没有。",
+                "刷了两小时手机后，决定休息一下……打开另一个软件。",
+                "你要相信，总有一天你会把现在的痛苦，输出为迷惑行为。",
+                "成年人的崩溃往往就在一瞬间：洗完头发突然发现护发素用完了。",
+                "深夜打开外卖软件不是因为饿，而是因为害怕面对人生。",
+                "在"行动力为零"和"还是先刷会儿手机"之间，我总是选择后者。",
+                "躺着是种很危险的姿势，它会让你什么都不想做但又什么都在想。",
+                "每当我感到生活艰难时，我就会提醒自己：至少我不是一个正在观看我人生的人。",
+                "不是因为看到希望才去坚持，而是因为坚持了才知道：原来希望是我编的。",
+                "正在加载人格.exe，请稍后……加载失败，未检测到灵魂。",
+                "如果你在某个深夜突然清醒，不必担心，那只是宇宙提醒你该交电费了。",
+                "存在感404错误：我已经消失，但还没有被人发现。",
+                "脑内弹窗太多，已自动开启勿扰模式，灵魂暂时离线。",
+                "生活不是缺少魔法，而是缺少一张能刷的信用卡。",
+                "当你凝视深渊时，深渊回你一句：关我屁事。",
+                "正在尝试重启自我...错误：找不到自我.exe文件。",
+                "我不是没有目标，我的目标是不设定目标，这样就不会失败了。",
+                "生而为人，我很抱歉，但账单必须按时缴纳。",
+                "按下社交暂停键，系统提示：错误，该功能已锁死。",
+                "我想去看海，但打开的却是快递APP的海淘频道。",
+                "你不能同时拥有美貌和手机电量，在深夜11点后。",
+                "我的自律能力，和我的头发一样，所剩无几。",
+                "现代人最大的矛盾是：想冒险，又想保险；想浪漫，又想稳定；想自由，又想规则。",
+                "每个成年人的噩梦就是：钱包瘪了，肚子圆了，头发少了，压力大了。",
+                "年轻时我们害怕虚度时光，年长后才发现虚度时光是唯一的安慰。",
+                "地球是圆的，所以走不出的怪圈，其实就是生活本身。",
+                "我能想到最浪漫的事，就是和你一起省钱到80岁。",
+                "我很好，但好不到哪去；我很坏，但还没坏到骨子里。",
+                "社会性死亡和真正死亡的区别是：前者你还能刷到自己的讣告。",
+                "点开外卖软件，是因为不想吃饭，而是想吃「点外卖」这件事。",
+                "生活的意义就是：闹钟响了你不想起，梦做到一半被闹醒。",
+                "存在本身已经很累了，还要我思考存在的意义吗？",
+                "如果生活是一部电影，现在就是我去洗手间时错过的高潮部分。",
+                "试过独处，试过社交，结论是：都不行。",
+                "你说你很累，想休息，但打开的却是购物软件。",
+                "大脑：快去睡觉！身体：好的！手指：再刷一个视频。",
+                "如果时间是金钱，那我已经把一个亿丢进了社交媒体的黑洞。"
+            ];
+            
+            // 获取随机句子
+            function getRandomQuote() {
+                return quotes[Math.floor(Math.random() * quotes.length)];
+            }
+            
+            // 生成新句子
+            function generateNewQuote() {
+                // 显示加载动画
+                loading.classList.add('show');
+                
+                // 模拟加载延迟
+                setTimeout(() => {
+                    quoteElement.textContent = getRandomQuote();
+                    loading.classList.remove('show');
+                }, 500);
+            }
+            
+            // 复制文本
+            function copyQuote() {
+                const text = quoteElement.textContent + "\n—— 来自《现代人生存指南》";
+                
+                // 尝试复制到剪贴板
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text)
+                        .then(() => showTooltip("已复制到剪贴板"))
+                        .catch(err => {
+                            console.error('复制失败:', err);
+                            showTooltip("复制失败，请手动复制");
+                        });
+                } else {
+                    // 备用方法
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    
+                    try {
+                        document.execCommand('copy');
+                        showTooltip("已复制到剪贴板");
+                    } catch (err) {
+                        console.error('复制失败:', err);
+                        showTooltip("复制失败，请手动复制");
+                    }
+                    
+                    document.body.removeChild(textarea);
+                }
+            }
+            
+            // 保存为图片
+            function saveAsImage() {
+                showTooltip("正在生成图片...");
+                
+                // 模拟图片生成和保存过程
+                setTimeout(() => {
+                    showTooltip("图片已保存到相册");
+                }, 1000);
+                
+                // 在真实项目中使用 html2canvas 库
+                /*
+                if (typeof html2canvas !== 'undefined') {
+                    html2canvas(quoteCard).then(canvas => {
+                        const image = canvas.toDataURL("image/png");
+                        const link = document.createElement('a');
+                        link.href = image;
+                        link.download = '现代人生存指南.png';
+                        link.click();
+                        
+                        showTooltip("图片已保存");
+                    });
+                } else {
+                    showTooltip("保存失败，请确保网站已引入html2canvas库");
+                }
+                */
+            }
+            
+            // 显示提示信息
+            function showTooltip(message) {
+                tooltip.textContent = message;
+                tooltip.classList.add('show');
+                
+                setTimeout(() => {
+                    tooltip.classList.remove('show');
+                }, 2000);
+            }
+            
+            // 监听按钮点击事件
+            generateBtn.addEventListener('click', generateNewQuote);
+            copyBtn.addEventListener('click', copyQuote);
+            saveBtn.addEventListener('click', saveAsImage);
+            
+            // 初始化随机句子
+            generateNewQuote();
+        });
+    </script>
+</body>
+</html>
