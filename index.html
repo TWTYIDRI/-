@@ -286,6 +286,39 @@
                 grid-column: span 1;
             }
         }
+        
+        /* 添加截图预览区域 */
+        #preview-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        #preview-image {
+            max-width: 90%;
+            max-height: 80%;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+        }
+        
+        #close-preview {
+            margin-top: 20px;
+            background-color: white;
+            color: black;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -336,15 +369,26 @@
                     <polyline points="7 10 12 15 17 10"></polyline>
                     <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
-                保存图片
+                生成预览
             </button>
         </div>
     </div>
     
     <div class="tooltip" id="tooltip">已复制到剪贴板</div>
     
+    <!-- 添加预览区域 -->
+    <div id="preview-container">
+        <canvas id="preview-canvas"></canvas>
+        <button id="close-preview">关闭预览</button>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <script>
+        // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM 已完全加载');
+            
             // 获取DOM元素
             const quoteElement = document.getElementById('quote');
             const generateBtn = document.getElementById('generate-btn');
@@ -353,6 +397,10 @@
             const tooltip = document.getElementById('tooltip');
             const loading = document.getElementById('loading');
             const quoteCard = document.getElementById('quoteCard');
+            const previewContainer = document.getElementById('preview-container');
+            const closePreviewBtn = document.getElementById('close-preview');
+            
+            console.log('按钮元素:', generateBtn, copyBtn, saveBtn);
             
             // 句子库
             const quotes = [
@@ -405,6 +453,8 @@
             
             // 生成新句子
             function generateNewQuote() {
+                console.log('生成新句子');
+                
                 // 显示加载动画
                 loading.classList.add('show');
                 
@@ -412,71 +462,97 @@
                 setTimeout(() => {
                     quoteElement.textContent = getRandomQuote();
                     loading.classList.remove('show');
+                    
+                    // 显示成功提示
+                    showTooltip("已更新句子");
                 }, 500);
             }
             
             // 复制文本
             function copyQuote() {
+                console.log('复制文本');
+                
                 const text = quoteElement.textContent + "\n—— 来自《现代人生存指南》";
                 
                 // 尝试复制到剪贴板
-                if (navigator.clipboard) {
+                if (navigator.clipboard && window.isSecureContext) {
                     navigator.clipboard.writeText(text)
-                        .then(() => showTooltip("已复制到剪贴板"))
+                        .then(() => {
+                            console.log('复制成功');
+                            showTooltip("已复制到剪贴板");
+                        })
                         .catch(err => {
                             console.error('复制失败:', err);
                             showTooltip("复制失败，请手动复制");
+                            fallbackCopyText(text);
                         });
                 } else {
                     // 备用方法
-                    const textarea = document.createElement('textarea');
-                    textarea.value = text;
-                    textarea.style.position = 'fixed';
-                    textarea.style.opacity = '0';
-                    document.body.appendChild(textarea);
-                    textarea.select();
-                    
-                    try {
-                        document.execCommand('copy');
-                        showTooltip("已复制到剪贴板");
-                    } catch (err) {
-                        console.error('复制失败:', err);
-                        showTooltip("复制失败，请手动复制");
-                    }
-                    
-                    document.body.removeChild(textarea);
+                    fallbackCopyText(text);
                 }
             }
             
-            // 保存为图片
-            function saveAsImage() {
-                showTooltip("正在生成图片...");
+            // 备用复制方法
+            function fallbackCopyText(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '0';
+                textarea.style.top = '0';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
                 
-                // 模拟图片生成和保存过程
-                setTimeout(() => {
-                    showTooltip("图片已保存到相册");
-                }, 1000);
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        showTooltip("已复制到剪贴板");
+                    } else {
+                        showTooltip("复制失败，请手动复制");
+                    }
+                } catch (err) {
+                    console.error('复制失败:', err);
+                    showTooltip("复制失败，请手动复制");
+                }
                 
-                // 在真实项目中使用 html2canvas 库
-                /*
+                document.body.removeChild(textarea);
+            }
+            
+            // 生成图片预览
+            function generatePreview() {
+                console.log('生成预览');
+                showTooltip("正在生成预览...");
+                
                 if (typeof html2canvas !== 'undefined') {
                     html2canvas(quoteCard).then(canvas => {
-                        const image = canvas.toDataURL("image/png");
-                        const link = document.createElement('a');
-                        link.href = image;
-                        link.download = '现代人生存指南.png';
-                        link.click();
+                        console.log('预览生成成功');
                         
-                        showTooltip("图片已保存");
+                        // 显示预览
+                        previewContainer.style.display = 'flex';
+                        
+                        // 获取canvas并添加到预览区域
+                        const previewCanvas = document.getElementById('preview-canvas');
+                        previewCanvas.width = canvas.width;
+                        previewCanvas.height = canvas.height;
+                        previewCanvas.getContext('2d').drawImage(canvas, 0, 0);
+                        
+                        showTooltip("预览已生成");
                     });
                 } else {
-                    showTooltip("保存失败，请确保网站已引入html2canvas库");
+                    showTooltip("生成预览失败，html2canvas库未加载");
                 }
-                */
+            }
+            
+            // 关闭预览
+            function closePreview() {
+                previewContainer.style.display = 'none';
             }
             
             // 显示提示信息
             function showTooltip(message) {
+                console.log('显示提示:', message);
+                
                 tooltip.textContent = message;
                 tooltip.classList.add('show');
                 
@@ -486,12 +562,35 @@
             }
             
             // 监听按钮点击事件
-            generateBtn.addEventListener('click', generateNewQuote);
-            copyBtn.addEventListener('click', copyQuote);
-            saveBtn.addEventListener('click', saveAsImage);
+            if (generateBtn) {
+                generateBtn.addEventListener('click', function() {
+                    console.log('点击了生成按钮');
+                    generateNewQuote();
+                });
+            }
+            
+            if (copyBtn) {
+                copyBtn.addEventListener('click', function() {
+                    console.log('点击了复制按钮');
+                    copyQuote();
+                });
+            }
+            
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function() {
+                    console.log('点击了保存按钮');
+                    generatePreview();
+                });
+            }
+            
+            if (closePreviewBtn) {
+                closePreviewBtn.addEventListener('click', closePreview);
+            }
             
             // 初始化随机句子
             generateNewQuote();
+            
+            console.log('初始化完成');
         });
     </script>
 </body>
