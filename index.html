@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>15分钟平衡法</title>
+    <title>一刻钟平衡术</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Microsoft+Yahei:wght@400;700&display=swap');
         
@@ -45,17 +45,17 @@
             }
             
             h1 {
-                font-size: 1.5rem !important;
+                font-size: 2.2rem !important;
                 margin-bottom: 1.5rem !important;
             }
             
             .task {
-                font-size: 1.8rem !important;
+                font-size: 1.5rem !important;
                 margin-bottom: 1.5rem !important;
             }
             
             .timer {
-                font-size: 3.5rem !important;
+                font-size: 3rem !important;
                 margin-bottom: 1.5rem !important;
             }
             
@@ -64,16 +64,12 @@
             }
             
             button {
-                padding: 0.5rem 1rem !important;
-                font-size: 0.9rem !important;
+                padding: 0.6rem 1.5rem !important;
+                font-size: 1.3rem !important;
             }
             
             .status {
                 font-size: 0.9rem !important;
-            }
-            
-            .cycle-count {
-                font-size: 0.8rem !important;
             }
         }
         
@@ -107,20 +103,21 @@
         }
         
         h1 {
-            font-size: 2rem;
+            font-size: 3.5rem;
+            font-weight: bold;
             margin-bottom: 2rem;
             color: #ffffff;
         }
         
         .task {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: bold;
             margin-bottom: 2rem;
             color: #ffffff;
         }
         
         .timer {
-            font-size: 5rem;
+            font-size: 4.5rem;
             font-weight: bold;
             margin-bottom: 2rem;
             color: #ffffff;
@@ -153,7 +150,8 @@
             color: white;
             border: none;
             padding: 0.75rem 1.5rem;
-            font-size: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
             transition: all 0.3s;
@@ -166,6 +164,7 @@
         
         .work-btn {
             background-color: #1a73e8;
+            padding: 1rem 2rem;
         }
         
         .work-btn:hover {
@@ -174,6 +173,7 @@
         
         .rest-btn {
             background-color: #34a853;
+            padding: 1rem 2rem;
         }
         
         .rest-btn:hover {
@@ -229,25 +229,15 @@
     <div class="container">
         <div class="paper-texture"></div>
         <div class="content">
-            <h1>15分钟平衡法</h1>
+            <h1>一刻钟平衡术</h1>
             
             <div class="status" id="status">选择模式开始</div>
             <div class="task" id="task">平衡你的时间</div>
             <div class="timer" id="timer">15:00</div>
             
-            <div class="cycle-count" id="cycleCount">
-                周期: <span id="cycleCountValue">0</span>
-                <button class="reset-cycle-btn" id="resetCycleBtn" title="重置周期计数">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                        <path d="M3 3v5h5"></path>
-                    </svg>
-                </button>
-            </div>
-            
             <div class="btn-container" id="modeButtons">
-                <button id="workBtn" class="work-btn">工作模式</button>
-                <button id="restBtn" class="rest-btn">休息模式</button>
+                <button id="workBtn" class="work-btn">工作</button>
+                <button id="restBtn" class="rest-btn">休息</button>
             </div>
             
             <button id="resetBtn" class="reset-btn" style="display: none;">重置</button>
@@ -255,7 +245,7 @@
             <div class="note">
                 <h3>「一刻钟平衡术」</h3>
                 <p>认知科学研究表明，人类大脑在工作与休息的1:1黄金比例下达到最佳效率。根据发表在《神经科学与行为研究》期刊的数据，遵循相等的工作/休息时间能使创造力提升42%，同时减少精神疲劳与倦怠感。这种平衡法利用了大脑的"对比记忆效应"，通过强制休息来增强对工作的渴望，反之亦然，从而创造无痛的工作-休息正循环。</p>
-                <p style="margin-top: 8px; font-style: italic; color: #999; font-size: 0.85em;">计数规则：1个完整周期 = 15分钟工作 + 15分钟休息</p>
+                <p style="margin-top: 8px; font-style: italic; color: #999; font-size: 0.85em;">1个完整周期 = 15分钟工作 + 15分钟休息</p>
             </div>
         </div>
     </div>
@@ -319,12 +309,6 @@
                                 timeUpSound.play().catch(e => console.log('无法播放提示音'));
                             }
                             
-                            // 在休息模式结束时增加周期计数
-                            if (mode === 'rest') {
-                                cycleCount++;
-                                cycleCountElement.textContent = cycleCount;
-                            }
-                            
                             // Suggest the opposite mode next
                             const nextMode = mode === 'work' ? "休息" : "工作";
                             statusElement.textContent = `建议切换到${nextMode}模式`;
@@ -364,16 +348,6 @@
             });
             
             resetBtn.addEventListener('click', resetTimer);
-            
-            resetCycleBtn.addEventListener('click', function() {
-                cycleCount = 0;
-                cycleCountElement.textContent = cycleCount;
-                // 添加旋转动画效果
-                resetCycleBtn.style.transform = 'rotate(360deg)';
-                setTimeout(() => {
-                    resetCycleBtn.style.transform = 'rotate(0deg)';
-                }, 300);
-            });
             
             updateTimerDisplay();
         });
